@@ -16,7 +16,12 @@ class LocationSettingController extends Controller
 
     public function store(Request $request)
     {
-        // Validation and store logic here
+        $request->validate([
+            'latitude' => 'required|numeric',
+            'longitude' => 'required|numeric',
+            'radius' => 'required|numeric|min:0',
+        ]);
+
         Setting::updateOrCreate(['key' => 'latitude'], ['value' => $request->latitude]);
         Setting::updateOrCreate(['key' => 'longitude'], ['value' => $request->longitude]);
         Setting::updateOrCreate(['key' => 'radius'], ['value' => $request->radius]);

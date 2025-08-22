@@ -21,8 +21,13 @@ class SchoolClassController extends Controller
 
     public function store(Request $request)
     {
-        // Validation and store logic here
-        return redirect()->route('admin.school_classes.index');
+        $request->validate([
+            'name' => 'required|string|max:255|unique:school_classes',
+        ]);
+
+        SchoolClass::create($request->all());
+
+        return redirect()->route('admin.school-classes.index');
     }
 
     public function edit(SchoolClass $schoolClass)
@@ -32,8 +37,13 @@ class SchoolClassController extends Controller
 
     public function update(Request $request, SchoolClass $schoolClass)
     {
-        // Validation and update logic here
-        return redirect()->route('admin.school_classes.index');
+        $request->validate([
+            'name' => 'required|string|max:255|unique:school_classes,name,' . $schoolClass->id,
+        ]);
+
+        $schoolClass->update($request->all());
+
+        return redirect()->route('admin.school-classes.index');
     }
 
     public function destroy(SchoolClass $schoolClass)

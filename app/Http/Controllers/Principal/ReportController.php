@@ -16,6 +16,33 @@ class ReportController extends Controller
 
     public function download()
     {
-        // Logic to generate and download PDF/Excel report
+        $attendances = Attendance::with(['user', 'schedule.subject', 'schedule.schoolClass'])->get();
+
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="attendance_report.csv"',
+        ];
+
+        $callback = function() use ($attendances) {
+            $file = fopen('php://output', 'w');
+            fputcsv($file, ['User Name', 'User Email', 'Subject', 'Class', 'Attendance Time', 'Latitude', 'Longitude', 'Notes', 'Status']);
+
+            foreach ($attendances as $attendance) {
+                fputcsv($file, [
+                    $attendance->user->name,
+                    $attendance->user->email,
+                    $attendance->schedule->subject->name,
+                    $attendance->schedule->schoolClass->name,
+                    $attendance->attendance_time,
+                    $attendance->latitude,
+                    $attendance->longitude,
+                    $attendance->notes,
+                    $attendance->status,
+                ]);
+            }
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
     }
 }

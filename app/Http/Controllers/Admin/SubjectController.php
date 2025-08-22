@@ -21,7 +21,13 @@ class SubjectController extends Controller
 
     public function store(Request $request)
     {
-        // Validation and store logic here
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|max:255|unique:subjects',
+        ]);
+
+        Subject::create($request->all());
+
         return redirect()->route('admin.subjects.index');
     }
 
@@ -32,7 +38,13 @@ class SubjectController extends Controller
 
     public function update(Request $request, Subject $subject)
     {
-        // Validation and update logic here
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'code' => 'required|string|max:255|unique:subjects,code,' . $subject->id,
+        ]);
+
+        $subject->update($request->all());
+
         return redirect()->route('admin.subjects.index');
     }
 

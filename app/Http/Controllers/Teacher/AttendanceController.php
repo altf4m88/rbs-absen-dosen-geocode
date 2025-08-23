@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Teacher;
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
 use App\Models\Schedule;
+use App\Models\Setting;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -56,7 +57,12 @@ class AttendanceController extends Controller
             'status' => $status,
         ]);
 
-        return redirect()->route('teacher.schedule.index')->with('status', 'Attendance recorded as ' . $status);
+        $message = 'Attendance recorded successfully.';
+        if ($status === 'outside_geofence') {
+            $message = 'Attendance recorded, but you were outside the allowed geofence.';
+        }
+
+        return redirect()->route('teacher.schedule.index')->with('status', $message);
     }
 
     public function history()

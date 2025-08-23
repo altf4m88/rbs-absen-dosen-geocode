@@ -4,45 +4,37 @@ namespace App\Http\Controllers\Principal;
 
 use App\Http\Controllers\Controller;
 use App\Models\Attendance;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Barryvdh\DomPDF\Facade\Pdf;
+
+use App\Exports\AttendancesExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class ReportController extends Controller
 {
     public function index()
     {
-        $attendances = Attendance::with(['user', 'schedule'])->get();
+        $attendances = Attendance::with(['user', 'schedule.subject', 'schedule.schoolClass'])->get()->groupBy('user_id');
         return view('principal.reports.index', compact('attendances'));
     }
 
     public function download()
     {
-        $attendances = Attendance::with(['user', 'schedule.subject', 'schedule.schoolClass'])->get();
+        return Excel::download(new AttendancesExport, 'attendances.xlsx');
+    }
 
-        $headers = [
-            'Content-Type' => 'text/csv',
-            'Content-Disposition' => 'attachment; filename="attendance_report.csv"',
-        ];
+    public function downloadPdfByUser(User $user)
+    {
+        $attendances = Attendance::where('user_id', $user->id)
+            ->with(['schedule.subject', 'schedule.schoolClass'])
+            ->get();
 
-        $callback = function() use ($attendances) {
-            $file = fopen('php://output', 'w');
-            fputcsv($file, ['User Name', 'User Email', 'Subject', 'Class', 'Attendance Time', 'Latitude', 'Longitude', 'Notes', 'Status']);
+        $pdf = Pdf::loadView('principal.reports.pdf', [
+            'user' => $user,
+            'attendances' => $attendances,
+        ]);
 
-            foreach ($attendances as $attendance) {
-                fputcsv($file, [
-                    $attendance->user->name,
-                    $attendance->user->email,
-                    $attendance->schedule->subject->name,
-                    $attendance->schedule->schoolClass->name,
-                    $attendance->attendance_time,
-                    $attendance->latitude,
-                    $attendance->longitude,
-                    $attendance->notes,
-                    $attendance->status,
-                ]);
-            }
-            fclose($file);
-        };
-
-        return response()->stream($callback, 200, $headers);
+        return $pdf->download('attendance-report-' . $user->name . '.pdf');
     }
 }

@@ -54,6 +54,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('dashboard', [PrincipalDashboardController::class, 'index'])->name('dashboard');
         Route::get('reports', [PrincipalReportController::class, 'index'])->name('reports.index');
         Route::get('reports/download', [PrincipalReportController::class, 'download'])->name('reports.download');
+        Route::get('reports/users/{user}/download-pdf', [PrincipalReportController::class, 'downloadPdfByUser'])->name('reports.download.pdf');
     });
 
 });

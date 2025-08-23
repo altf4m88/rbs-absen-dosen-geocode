@@ -85,7 +85,7 @@
             </div>
         </div>
     </div>
-    <div class="col-lg-6 col-md-6 mb-4">
+    {{-- <div class="col-lg-6 col-md-6 mb-4">
         <div class="card dashboard-card h-100 border-0 shadow-sm">
             <div class="card-body text-center p-4">
                 <div class="academic-icon mx-auto mb-3">
@@ -101,7 +101,7 @@
                 </a>
             </div>
         </div>
-    </div>
+    </div> --}}
 </div>
 
 <!-- Institutional Information Panel -->
